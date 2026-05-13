@@ -1,8 +1,4 @@
 ---
-nginx:
-  apt:
-    state: present
-  config:
-    sites: # --> /etc/nginx/sites-available
-      enabled: []
-      disabled: []
+nginx_apt_state: present
+nginx_config_sites_enabled: []
+nginx_config_sites_disabled: []

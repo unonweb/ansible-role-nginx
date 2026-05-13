@@ -1,14 +1,18 @@
 ---
-# TO DO
-# -----
-
 - name: nginx role
   tags:
     - nginx
   block:
 
+  # assert
+  - name: Assertions
+    ansible.builtin.assert:
+      that:
+      - ansible_facts.distribution_major_version is defined 
+      - ansible_facts.os_family is defined
+
   # install
-  - when: nginx.apt.state == "present"
+  - when: nginx_apt_state == "present"
     block:
 
     # repo key
@@ -24,8 +28,8 @@
     # add repo
     - name: Add repo nginx
       when: 
-      - ansible_facts['os_family'] == 'Debian'
-      - ansible_facts['distribution_major_version'] == '12'
+      - ansible_facts.os_family == 'Debian'
+      - ansible_facts.distribution_major_version == '12'
       become: true
       ansible.builtin.deb822_repository:
         name: nginx
@@ -54,7 +58,7 @@
         name: nginx
 
   # state == absent
-  - when: nginx.apt.state == "absent"
+  - when: nginx_apt_state == "absent"
     block:
 
     # remove 
@@ -65,33 +69,33 @@
         name: nginx
 
   # cp sites
-  - when: nginx.config.sites.enabled | length > 0
+  - when: nginx_config_sites_enabled | length > 0
     block:
 
-    - name: Copy to /etc/nginx/sites-available {{ nginx.config.sites.enabled }}
+    - name: Copy to /etc/nginx/sites-available {{ nginx_config_sites_enabled }}
       become: true
-      loop: "{{ nginx.config.sites.enabled }}" # ["sites/ziska/test.local.conf"]
+      loop: "{{ nginx_config_sites_enabled }}" # ["sites/ziska/test.local.conf"]
       ansible.builtin.copy:
         src: "{{ item }}"
         dest: /etc/nginx/sites-available # item.split('/')[-1]
 
     # link
-    - name: Link to /etc/nginx/sites-enabled {{ nginx.config.sites.enabled }}
+    - name: Link to /etc/nginx/sites-enabled {{ nginx_config_sites_enabled }}
       become: true
-      loop: "{{ nginx.config.sites.enabled }}"
+      loop: "{{ nginx_config_sites_enabled }}"
       ansible.builtin.file:
         src: "/etc/nginx/sites-available/{{ item.split('/')[-1] }}" # sites/ziska/test.local.conf --> test.local.conf
         dest: /etc/nginx/sites-enabled/{{ item.split('/')[-1] }}
         state: link
 
   # rm sites
-  - when: nginx.config.sites.disabled | length > 0
+  - when: nginx_config_sites_disabled | length > 0
     block:
 
     # rm
-    - name: Remove from /etc/nginx/sites-enabled {{ nginx.config.sites.disabled }}
+    - name: Remove from /etc/nginx/sites-enabled {{ nginx_config_sites_disabled }}
       become: true
-      loop: "{{ nginx.config.sites.disabled }}"
+      loop: "{{ nginx_config_sites_disabled }}"
       ansible.builtin.file:
         path: "/etc/nginx/sites-enabled/{{ item }}"
         state: absent
