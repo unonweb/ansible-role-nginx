@@ -1,0 +1,57 @@
+---
+# install
+- when: nginx_apt_state == "present"
+  block:
+
+  # repo key
+  - name: Copy repo key
+    become: true
+    ansible.builtin.copy:
+      src: nginx.gpg
+      dest: /etc/apt/keyrings/nginx.gpg
+      owner: root
+      group: root
+      mode: u=rw,g=r,o=r
+
+  # add repo
+  - name: Add repo nginx
+    when: 
+    - ansible_facts['os_family'] == 'Debian'
+    - ansible_facts['distribution_major_version'] == '12'
+    become: true
+    ansible.builtin.deb822_repository:
+      name: nginx
+      types: deb
+      architectures: amd64
+      uris: http://nginx.org/packages/debian
+      suites: bookworm
+      components: nginx
+      enabled: true
+      signed_by: /etc/apt/keyrings/nginx.gpg
+    register: add_repo
+  
+  # update
+  - name: Update apt cache
+    when: add_repo.changed
+    become: true
+    ansible.builtin.apt:
+      update_cache: true
+
+  # install
+  - name: Install nginx
+    become: true
+    ansible.builtin.apt:
+      update_cache: false
+      state: present
+      name: nginx
+
+# state == absent
+- when: nginx_apt_state == "absent"
+  block:
+
+  # remove 
+  - name: Apt remove nginx
+    become: true
+    ansible.builtin.apt:
+      state: absent
+      name: nginx
