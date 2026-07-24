@@ -1,7 +1,10 @@
 ABOUT
 =====
 
-A radically simple Ansible role for Nginx on Debian.
+A radically simple Ansible role for Nginx.
+
+- System: Debian
+- State: Development
 
 
 NOTES
