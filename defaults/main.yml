@@ -1,4 +1,9 @@
 ---
-nginx_apt_state: present
-nginx_config_sites_enabled: []
-nginx_config_sites_disabled: []
+# INSTALL
+# =======
+nginx_install_apt_state: present
+
+# SITES
+# =====
+nginx_sites_enabled: []
+nginx_sites_disabled: []

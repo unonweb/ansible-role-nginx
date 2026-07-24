@@ -1,32 +1,32 @@
 ---
 # cp sites
-- when: nginx_config_sites_enabled | length > 0
+- when: nginx_sites_enabled | length > 0
   block:
 
-  - name: Copy to /etc/nginx/sites-available {{ nginx_config_sites_enabled }}
+  - name: Copy to /etc/nginx/sites-available {{ nginx_sites_enabled }}
     become: true
-    loop: "{{ nginx_config_sites_enabled }}" # ["sites/ziska/test.local.conf"]
+    loop: "{{ nginx_sites_enabled }}" # ["sites/ziska/test.local.conf"]
     ansible.builtin.copy:
       src: "{{ item }}"
       dest: /etc/nginx/sites-available # item.split('/')[-1]
 
   # link
-  - name: Link to /etc/nginx/sites-enabled {{ nginx_config_sites_enabled }}
+  - name: Link to /etc/nginx/sites-enabled {{ nginx_sites_enabled }}
     become: true
-    loop: "{{ nginx_config_sites_enabled }}"
+    loop: "{{ nginx_sites_enabled }}"
     ansible.builtin.file:
       src: "/etc/nginx/sites-available/{{ item.split('/')[-1] }}" # sites/ziska/test.local.conf --> test.local.conf
       dest: /etc/nginx/sites-enabled/{{ item.split('/')[-1] }}
       state: link
 
 # rm sites
-- when: nginx_config_sites_disabled | length > 0
+- when: nginx_sites_disabled | length > 0
   block:
 
   # rm
-  - name: Remove from /etc/nginx/sites-enabled {{ nginx_config_sites_disabled }}
+  - name: Remove from /etc/nginx/sites-enabled {{ nginx_sites_disabled }}
     become: true
-    loop: "{{ nginx_config_sites_disabled }}"
+    loop: "{{ nginx_sites_disabled }}"
     ansible.builtin.file:
       path: "/etc/nginx/sites-enabled/{{ item }}"
       state: absent

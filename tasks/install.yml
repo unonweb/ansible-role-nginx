@@ -1,6 +1,6 @@
 ---
 # install
-- when: nginx_apt_state == "present"
+- when: nginx_install_apt_state == "present"
   block:
 
   # repo key
@@ -28,11 +28,11 @@
       components: nginx
       enabled: true
       signed_by: /etc/apt/keyrings/nginx.gpg
-    register: add_repo
+    register: __nginx_add_repo
   
   # update
   - name: Update apt cache
-    when: add_repo.changed
+    when: __nginx_add_repo.changed
     become: true
     ansible.builtin.apt:
       update_cache: true
@@ -46,7 +46,7 @@
       name: nginx
 
 # state == absent
-- when: nginx_apt_state == "absent"
+- when: nginx_install_apt_state == "absent"
   block:
 
   # remove 
