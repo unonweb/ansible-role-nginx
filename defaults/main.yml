@@ -2,6 +2,10 @@
 # INSTALL
 # =======
 nginx_install_apt_state: present
+nginx_install_apt_repo_url: http://nginx.org/packages/debian
+nginx_install_apt_repo_suites: bookworm
+nginx_install_apt_repo_components: nginx
+nginx_install_apt_repo_key_dst: /etc/apt/keyrings/nginx.gpg
 
 # SITES
 # =====

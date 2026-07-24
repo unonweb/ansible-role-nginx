@@ -8,7 +8,7 @@
     become: true
     ansible.builtin.copy:
       src: nginx.gpg
-      dest: /etc/apt/keyrings/nginx.gpg
+      dest: "{{ nginx_install_apt_repo_key_dst }}"
       owner: root
       group: root
       mode: u=rw,g=r,o=r
@@ -23,11 +23,11 @@
       name: nginx
       types: deb
       architectures: amd64
-      uris: http://nginx.org/packages/debian
-      suites: bookworm
-      components: nginx
+      uris: "{{ nginx_install_apt_repo_url }}"
+      suites: "{{ nginx_install_apt_repo_suites }}"
+      components: "{{ nginx_install_apt_repo_components }}"
       enabled: true
-      signed_by: /etc/apt/keyrings/nginx.gpg
+      signed_by: "{{ nginx_install_apt_repo_key_dst }}"
     register: __nginx_add_repo
   
   # update
