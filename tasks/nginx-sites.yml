@@ -15,6 +15,7 @@
       - item.state in ['enabled', 'disabled']
       - item.name.endswith('.conf')
       - item.template != None
+      quiet: true
 
   # mkdir
   - name: Mkdir [sites-enabled, sites-available]

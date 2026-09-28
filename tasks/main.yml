@@ -10,6 +10,7 @@
       that:
       - ansible_facts['distribution_major_version'] is defined 
       - ansible_facts['os_family'] is defined
+      quiet: true
 
   # install
   - ansible.builtin.import_tasks: nginx-install.yml
