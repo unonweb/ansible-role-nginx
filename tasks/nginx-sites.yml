@@ -39,6 +39,7 @@
       owner: root
       group: root
       mode: '0644'
+      validate: nginx -t -c %s # Ansible replaces %s with the path to a temporary file containing your newly generated configuration
     notify: systemctl reload nginx.service
 
   # enable
