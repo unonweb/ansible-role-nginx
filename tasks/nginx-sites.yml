@@ -38,7 +38,7 @@
       owner: root
       group: root
       mode: '0644'
-    notify: Reload apache
+    notify: systemctl reload nginx.service
 
   # enable
   - name: Enable sites
@@ -48,7 +48,7 @@
       src: "/etc/nginx/sites-available/{{ item.name }}"
       dest: "/etc/nginx/sites-enabled/{{ item.name }}"
       state: link
-    notify: Reload apache
+    notify: systemctl reload nginx.service
 
   # disable
   - name: Disable sites
@@ -57,4 +57,4 @@
     ansible.builtin.file:
       path: "/etc/nginx/sites-enabled/{{ item.name }}"
       state: absent
-    notify: Reload apache
+    notify: systemctl reload nginx.service
