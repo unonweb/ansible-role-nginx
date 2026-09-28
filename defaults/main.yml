@@ -9,5 +9,11 @@ nginx_install_apt_repo_key_dst: /etc/apt/keyrings/nginx.gpg
 
 # SITES
 # =====
-nginx_sites_enabled: []
-nginx_sites_disabled: []
+# state: enabled | disabled
+# name: *.conf
+# template: nextcloud.conf.j2
+nginx_sites:
+- template:
+  name:
+  state:
+  vars: {}

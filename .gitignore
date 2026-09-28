@@ -1,2 +1,3 @@
 files/.nginx-debian-bookworm.list
 files/sites/
+templates/mobilizon-release.conf.j2

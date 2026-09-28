@@ -1,0 +1,60 @@
+---
+- tags: [role-nginx-sites]
+  when:
+  - nginx_sites is not string
+  - nginx_sites is not mapping
+  - nginx_sites is iterable
+  - nginx_sites | length > 0
+  block:
+
+  # assertions
+  - name: Assertions for nginx_sites
+    loop: "{{ nginx_sites }}"
+    ansible.builtin.assert:
+      that:
+      - item.state in ['enabled', 'disabled']
+      - item.name.endswith('.conf')
+      - item.template != None
+
+  # mkdir
+  - name: Mkdir [sites-enabled, sites-available]
+    become: true
+    loop:
+    - /etc/nginx/sites-enabled
+    - /etc/nginx/sites-available
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      owner: root
+      group: root
+      mode: u=rwx,g=rx,o=rx
+
+  # template
+  - name: Template sites
+    loop: "{{ nginx_sites }}"
+    ansible.builtin.template:
+      src: "{{ item.template }}"
+      dest: "/etc/nginx/sites-available/{{ item.name }}"
+      owner: root
+      group: root
+      mode: '0644'
+    notify: Reload apache
+
+  # enable
+  - name: Enable sites
+    loop: "{{ nginx_sites }}"
+    when: item.state == "enabled"
+    ansible.builtin.file:
+      src: "/etc/nginx/sites-available/{{ item.name }}"
+      dest: "/etc/nginx/sites-enabled/{{ item.name }}"
+      state: link
+    notify: Reload apache
+
+  # disable
+  - name: Disable sites
+    loop: "{{ nginx_sites }}"
+    when: item.state == "disabled"
+    ansible.builtin.file:
+      path: "/etc/nginx/sites-enabled/{{ item.name }}"
+      state: absent
+    notify: Reload apache

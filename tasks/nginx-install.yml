@@ -1,0 +1,59 @@
+---
+- tags: [role-nginx-install]
+  block:
+
+  - when: nginx_install_apt_state == "present"
+    block:
+
+    # repo key
+    - name: Copy repo key
+      become: true
+      ansible.builtin.copy:
+        src: nginx.gpg
+        dest: "{{ nginx_install_apt_repo_key_dst }}"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    # add repo
+    - name: Add repo nginx
+      when: 
+      - ansible_facts['os_family'] == 'Debian'
+      - ansible_facts['distribution_major_version'] == '12'
+      become: true
+      ansible.builtin.deb822_repository:
+        name: nginx
+        types: deb
+        architectures: amd64
+        uris: "{{ nginx_install_apt_repo_url }}"
+        suites: "{{ nginx_install_apt_repo_suites }}"
+        components: "{{ nginx_install_apt_repo_components }}"
+        enabled: true
+        signed_by: "{{ nginx_install_apt_repo_key_dst }}"
+      register: __nginx_add_repo
+    
+    # update
+    - name: Update apt cache
+      when: __nginx_add_repo.changed
+      become: true
+      ansible.builtin.apt:
+        update_cache: true
+
+    # install
+    - name: Install nginx
+      become: true
+      ansible.builtin.apt:
+        update_cache: false
+        state: present
+        name: nginx
+
+  # state == absent
+  - when: nginx_install_apt_state == "absent"
+    block:
+
+    # remove 
+    - name: Apt remove nginx
+      become: true
+      ansible.builtin.apt:
+        state: absent
+        name: nginx
