@@ -1,0 +1,66 @@
+server {                                                                                                                                                                                                           
+    server_name {{ item.vars.server_name | mandatory }};                                                                                                                                                                              
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;  # Adjust this path to your web root
+        allow all;
+    }
+                                                                                                                                                                                                                 
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+
+        proxy_set_header X-Forwarded-Ssl on;
+
+        proxy_pass {{ item.vars.proxy_pass | mandatory }};
+    }
+
+    location /.well-known/carddav {
+        return 301 $scheme://$host/remote.php/dav;
+    }
+
+    location /.well-known/caldav {
+        return 301 $scheme://$host/remote.php/dav;
+    }
+
+    # http://{{ item.vars.server_name | mandatory }}/.well-known/acme-challenge/wYhGc-OBxjLkQOl0GzZnL0wGrVfXXvXhrYCdZY0tQjc
+    #location ^~ /.well-known {
+    #    return 301 $scheme://$host/index.php$uri;
+    #}
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+   
+    # upload
+    client_max_body_size 1G;
+    #proxy_read_timeout 3600s;
+    #proxy_buffering off;
+
+    # Increase proxy timeouts
+    proxy_connect_timeout 3600s;
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+    #fastcgi_read_timeout 3600s;
+
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/{{ item.vars.server_name | mandatory }}/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/{{ item.vars.server_name | mandatory }}/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+server {
+    if ($host = {{ item.vars.server_name | mandatory }}) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+                                                                                                                                                                                                           
+    server_name {{ item.vars.server_name | mandatory }};
+    listen 80;
+    return 404; # managed by Certbot
+
+
+}
