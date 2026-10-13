@@ -16,8 +16,8 @@ server {
     ssl_session_timeout 5m;
     http2 on;
 
-    ssl_certificate           {{ item.vars.ssl_certificate | mandatory }};
-    ssl_certificate_key       {{ item.vars.ssl_certificate_key | mandatory }};
+    ssl_certificate /etc/letsencrypt/live/{{ item.vars.server_name | mandatory }}/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/{{ item.vars.server_name | mandatory }}/privkey.pem; # managed by Certbot
 
 	# Add TLSv1.3 if it's supported by your system
     ssl_protocols TLSv1.2 TLSv1.3;
