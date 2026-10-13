@@ -5,6 +5,14 @@
   - when: nginx_install_apt_state == "present"
     block:
 
+    # assert
+    - name: Assertions for nginx-install
+      ansible.builtin.assert:
+        that:
+        - ansible_facts['distribution_major_version'] is defined 
+        - ansible_facts['os_family'] is defined
+        quiet: true
+        
     # repo key
     - name: Copy repo key
       become: true
